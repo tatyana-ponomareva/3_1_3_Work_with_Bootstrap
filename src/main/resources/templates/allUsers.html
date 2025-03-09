@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Users</title>
+</head>
+<body>
+
+<table class="table table-dark">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Password</th>
+        <th scope="col">Role</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="users: ${allUs}">
+        <td th:text="${users.username}"/>
+        <td th:text="${users.password}"/>
+        <td
+        <span th:each="role : ${users.roles}" th:text="${role.role}"></span>
+        <td>
+            <a th:href="@{'/admin/edit'(id=${users.id})}">Update</a>
+            <a th:href="@{'/admin/delete'(id=${users.id})}">Delete</a>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+    <form action="/admin/new" method="get">
+        <!-- Другие поля формы -->
+        <button type="submit">Create</button>
+    </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

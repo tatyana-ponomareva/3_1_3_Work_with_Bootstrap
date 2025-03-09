@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Профиль пользователя</title>
+</head>
+<body>
+<h1>Профиль пользователя</h1>
+<p>Имя пользователя: <span th:text="${user.username}"></span></p>
+<p>Пароль: <span th:text="${user.password}"></span></p>
+<p>Роли:
+  <span th:each="role : ${user.roles}" th:text="${role.role} + ' '"></span>
+</p>
+</body>
+</html>
