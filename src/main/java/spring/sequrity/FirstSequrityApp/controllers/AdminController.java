@@ -31,6 +31,7 @@ public class AdminController {
     public String getAllUsers(Model model) {
         List<User> allUsers = userService.getAllUsers();
         model.addAttribute("allUs", allUsers);
+//        model.addAttribute("user", new User());
         return "allUsers";
     }
 
@@ -55,6 +56,7 @@ public class AdminController {
         userService.saveUser(user);
         return "redirect:/admin/users";
     }
+
 
     @GetMapping("/edit")
     public String getEditUser(@RequestParam("id") long id, Model model) {

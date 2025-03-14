@@ -40,5 +40,6 @@ public class Init {
         user.setPassword("$2y$10$TkRzx2eK/2DtRrH5Y033ve0SmCtDbQEUPyC3RrM5mQtr9iEEqTmiK"); //200
         user.setRoles(Collections.singleton(roleUser));
         userRepository.save(user);
+
     }
 }
