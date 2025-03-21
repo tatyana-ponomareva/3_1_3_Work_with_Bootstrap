@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import spring.sequrity.FirstSequrityApp.service.UserDetailsService;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -28,11 +30,12 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/roleAdmin").hasRole("ADMIN")
                         // вместо antMatchers("/index").permitAll()
-                        .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/", "/index").permitAll()
+                        .requestMatchers("/roleUser").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/index").permitAll()
                         .anyRequest().authenticated()
 
                 )
@@ -41,7 +44,6 @@ public class WebSecurityConfig {
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
-
         return http.build();
     }
 

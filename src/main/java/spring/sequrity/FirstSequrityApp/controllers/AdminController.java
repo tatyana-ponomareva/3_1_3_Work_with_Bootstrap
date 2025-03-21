@@ -2,8 +2,8 @@ package spring.sequrity.FirstSequrityApp.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.sequrity.FirstSequrityApp.models.Role;
 import spring.sequrity.FirstSequrityApp.models.User;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
     private final UserService userService;
@@ -28,23 +28,14 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String getAllUsers(Model model) {
+    public List<User> getAllUsers() {
         List<User> allUsers = userService.getAllUsers();
-        model.addAttribute("allUs", allUsers);
-//        model.addAttribute("user", new User());
-        return "allUsers";
-    }
-
-    @GetMapping("/new")
-    public String getNewUser(Model model) {
-        model.addAttribute("user", new User());
-
-        return "newUser";
+        return allUsers;
     }
 
     @PostMapping("/users")
-    public String createUser(@ModelAttribute("user") User user,
-                             @RequestParam("rolestring") String rolestring) {
+    public ResponseEntity<?> createUser(@RequestBody User user,
+                                        @RequestParam("rolestring") String rolestring) {
         Set<Role> rolesSet = Arrays.stream(rolestring.split(","))
                 .map(String::trim)
                 .map(roleName -> roleRepository.findByRole(
@@ -53,39 +44,45 @@ public class AdminController {
                 .collect(Collectors.toSet());
 
         user.setRoles(rolesSet);
-        userService.saveUser(user);
-        return "redirect:/admin/users";
+        boolean saved = userService.saveUser(user);
+        if (saved) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Пользователь с таким именем уже существует");
+        }
+    }
+
+    // Получить пользователя по id
+    @GetMapping("/edit/{id}")
+    public ResponseEntity<User> getUser(@PathVariable("id") long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
 
-    @GetMapping("/edit")
-    public String getEditUser(@RequestParam("id") long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        return "editUser";
-    }
-
-    @PostMapping("/update")
-    public String updateUser(@RequestParam("id") long id,
-                             @RequestParam("username") String username,
-                             @RequestParam("password") String password,
-                             @RequestParam("roles") String roles) {
+    @PostMapping ("/update/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") long id,
+                                        @RequestBody User updatedUser,
+                                        @RequestParam("roles") String roles) {
         Set<Role> rolesSet = Arrays.stream(roles.split(","))
                 .map(String::trim)
-                .map(roleName -> roleRepository.findByRole(roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName)
+                .map(roleName -> roleRepository.findByRole(
+                                roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName)
                         .orElseThrow(() -> new IllegalArgumentException("Роль " + roleName + " не найдена")))
                 .collect(Collectors.toSet());
 
         User user = userService.getUserById(id);
-        user.setUsername(username);
-        user.setPassword(password);
+        user.setUsername(updatedUser.getUsername());
+        user.setPassword(updatedUser.getPassword());
         user.setRoles(rolesSet);
         userService.updateUser(user);
-        return "redirect:/admin/users";
+        return ResponseEntity.ok(user);
     }
 
-    @GetMapping ("/delete")
-    public String deleteUser(@RequestParam("id") long id) {
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
         userService.deleteUser(id);
-        return "redirect:/admin/users";
+        return ResponseEntity.noContent().build();
     }
 }

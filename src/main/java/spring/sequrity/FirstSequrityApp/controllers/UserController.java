@@ -1,17 +1,17 @@
 package spring.sequrity.FirstSequrityApp.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import spring.sequrity.FirstSequrityApp.models.User;
 import spring.sequrity.FirstSequrityApp.service.UserService;
 
 import java.security.Principal;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
@@ -22,11 +22,10 @@ public class UserController {
     }
 
     @GetMapping("/showUser")
-    public String showUser(Model model, Principal principal) {
+    public ResponseEntity<User> showUser(Principal principal) {
         String username = principal.getName();
          User user = userService.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
-        model.addAttribute("user", user);
-        return "showUser";
+        return ResponseEntity.ok(user);
     }
 }

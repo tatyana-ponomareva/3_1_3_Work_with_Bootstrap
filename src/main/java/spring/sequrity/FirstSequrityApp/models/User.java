@@ -1,6 +1,7 @@
 package spring.sequrity.FirstSequrityApp.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -16,9 +17,11 @@ public class User {
     private long id;
 
     @Column(name = "name")
+    @NotEmpty(message = "Name should not be empty")
     private String username;
 
     @Column(name = "password")
+    @NotEmpty(message = "Password should not be empty")
     private String password;
 
     @ManyToMany
